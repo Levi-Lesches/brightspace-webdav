@@ -3,6 +3,8 @@ import "dart:typed_data";
 
 import "package:http/http.dart" show Client, Response;
 
+import "package:webdav/utils.dart";
+
 class BrightspaceApiError extends Error {
 	/// The response from the Brightspace API that contains the error. 
 	final Response response;
@@ -24,9 +26,9 @@ class BrightspaceUtils {
 	final _client = Client();
 
 	/// Sends and parses a GET request to the Brightspace server.
-	Future<Map> get(String route) async {
+	Future<Json> get(String route) async {
 		final url = Uri.http(host, route);
-		final Response response = await _client.get(url);
+		final response = await _client.get(url);
 		switch (response.statusCode) {
 			case 200: return jsonDecode(response.body);
 			case 401: 

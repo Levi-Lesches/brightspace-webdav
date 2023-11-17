@@ -3,7 +3,7 @@ import "properties.dart";
 
 class DummyResource extends Resource {
 	/// Creates a dummy resource at a given [Uri] with blank properties. 
-	const DummyResource(Uri uri, {bool exists = true}) : super(uri, exists: exists);
+	const DummyResource(super.uri, {super.exists});
 
 	@override
 	ResourceProperties get properties => ResourceProperties(
@@ -16,7 +16,7 @@ class DummyResource extends Resource {
 
 class DummyCollectionResource extends CollectionResource {
 	/// Creates a dummy resource at a [Uri] with no properties or children.
-	const DummyCollectionResource(Uri uri) : super(uri);
+	const DummyCollectionResource(super.uri);
 
 	@override
 	ResourceProperties get properties => ResourceProperties(

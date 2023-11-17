@@ -6,8 +6,11 @@ extension on DateTime {
 }
 
 class ResourceProperties {
-	/// When this resource was created or modified.
-	final DateTime creationDate, modified;
+	/// When this resource was first created.
+	final DateTime creationDate;
+  
+  /// When this resource was last modified.
+  final DateTime modified;
 
 	/// A user-facing name for this resource. 
 	final String displayName;
@@ -37,6 +40,6 @@ class ResourceProperties {
 		..element("D:getlastmodified", nest: modified.toUtc().prettyPrint())
 		..element("D:resourcetype", nest: () {
 			if (isDirectory) builder.element("D:collection");
-		})
+		},),
 	);
 }

@@ -10,7 +10,7 @@ const secret = "12345";
 
 Future<Client> createClient() async {
 	final grant = AuthorizationCodeGrant(
-		identifier, authEndpoint, tokenEndpoint, secret: secret
+		identifier, authEndpoint, tokenEndpoint, secret: secret,
 	);
 
 	final authUrl = grant.getAuthorizationUrl(redirectUrl, scopes: ["users:own_profile:read"]);
@@ -19,6 +19,7 @@ Future<Client> createClient() async {
 	return grant.handleAuthorizationResponse(responseParameters);
 }
 
+// ignore: avoid_print
 Future<void> redirect(Uri url) async => print(url);
 
 Future<Map<String, String>> listen(Uri url) async {

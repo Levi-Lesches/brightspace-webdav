@@ -5,6 +5,8 @@ import "package:http/http.dart" as http;
 import "package:shelf/shelf.dart";
 import "package:shelf/shelf_io.dart";
 
+import "package:webdav/utils.dart";
+
 /// We can use the API Test Tool for testing the Brightspace API.
 /// 
 /// Problem is, it sends its requests through a forwarder, which returns its 
@@ -27,7 +29,7 @@ const d2lPath = "doRequest.php";
 
 Future<Response> handleGet(Request request) async {
 	// Parse and construct the forwarded request
-	final Map<String, String> body = {
+	final body = <String, String>{
 		"host": "devcop.brightspace.com",
 		"port": "443",
 		"scheme": "https",
@@ -41,10 +43,10 @@ Future<Response> handleGet(Request request) async {
 		"userId": "YBQZCnjR041iW6D9GYmKQm",
 		"userKey": "laTd-zDfdGSOCn7dcpf955",
 	};
-	final Uri url = Uri(scheme: "https", host: d2lUrl, path: d2lPath);
+	final url = Uri(scheme: "https", host: d2lUrl, path: d2lPath);
 
 	// Send and parse the response. The actual response is a *field* in the response
-	final http.Response d2lResponse = await client.post(url, body: body);
+	final d2lResponse = await client.post(url, body: body);
 	if (d2lResponse.statusCode != 200) return Response.internalServerError(body: "Error serving $url");
   if (d2lResponse.body.isEmpty) {
     return Response(
@@ -52,7 +54,7 @@ Future<Response> handleGet(Request request) async {
       // body: null,
     );
   } else {
-    final Map json = jsonDecode(d2lResponse.body);
+    final Json json = jsonDecode(d2lResponse.body);
     final String response = json["response"];
     return Response(
       d2lResponse.statusCode,

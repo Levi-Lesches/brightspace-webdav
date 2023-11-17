@@ -1,3 +1,5 @@
+import "package:webdav/utils.dart";
+
 import "course.dart";
 
 /// A unit of content in a course's "Content" page.
@@ -43,11 +45,10 @@ class Topic extends ContentObject {
 	/// Creates a [Topic] from JSON.
 	/// 
 	/// See https://docs.valence.desire2learn.com/res/content.html?highlight=topic#Content.ContentObject.
-	Topic.fromJson(Map json, {required Course course}) : 
+	Topic.fromJson(Json json, {required super.course}) : 
 		isFile = json["ActivityType"] == 1,
 		urlPath = json["Url"],
 		super(
-			course: course,
 			id: json["TopicId"],
 			title: Uri(path: json["Url"]).pathSegments.last,
 			lastModified: DateTime.parse(json["LastModifiedDate"]),
@@ -71,7 +72,7 @@ class Module extends ContentObject {
 	/// and topics as found in the contents page. 
 	Module.fromCourse(
 		Course course,
-		{List<Module>? children}
+		{List<Module>? children,}
 	) : topics = [], children = children ?? [], super(
 		course: course,
 		title: course.name,
@@ -83,18 +84,17 @@ class Module extends ContentObject {
 	/// Creates a [Module] from JSON.
 	/// 
 	/// See https://docs.valence.desire2learn.com/res/content.html?highlight=topic#Content.ContentObject.
-	Module.fromJson(Map json, {required Course course}) : 
+	Module.fromJson(Json json, {required super.course}) : 
 		children = [
-			for (final Map item in json["Modules"])
-				Module.fromJson(item, course: course)
+			for (final Json item in json["Modules"])
+				Module.fromJson(item, course: course),
 		],
 		topics = [
-			for (final Map item in json["Topics"])
+			for (final Json item in json["Topics"])
 				if (item["ActivityType"] == 1)
-					Topic.fromJson(item, course: course)
+					Topic.fromJson(item, course: course),
 		],
 		super(
-			course: course,
 			id: json["ModuleId"],
 			title: json["Title"],
 			lastModified: DateTime.parse(json["LastModifiedDate"]),

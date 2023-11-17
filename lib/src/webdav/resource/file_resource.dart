@@ -19,7 +19,7 @@ abstract class FileSystemResource<T extends FileSystemEntity> extends Resource {
 
 	static FileSystemResource fromUri(Uri uri) {
 		final resolvedUri = rootUri.resolveUri(uri);
-		final bool isDir = FileSystemEntity.isDirectorySync(resolvedUri.toFilePath());
+		final isDir = FileSystemEntity.isDirectorySync(resolvedUri.toFilePath());
 		FileSystemResource resource; 
 		if (isDir) { resource = DirectoryResource(resolvedUri); }
 		else { resource = FileResource(resolvedUri); }
@@ -28,7 +28,7 @@ abstract class FileSystemResource<T extends FileSystemEntity> extends Resource {
 
 	@override
 	ResourceProperties get properties {
-		final FileStat stats = entity.statSync();
+		final stats = entity.statSync();
 		return ResourceProperties(
 			creationDate: DateTime.now(),
 			displayName: baseUri.relative.pathSegments.lastWhere((segment) => segment.isNotEmpty),
@@ -53,6 +53,6 @@ class DirectoryResource extends FileSystemResource<Directory> implements Collect
 	Iterable<FileSystemResource> get children => [
 		for (final FileSystemEntity child in entity.listSync())
 			if (child is File) FileResource(child.uri)
-			else DirectoryResource(child.uri)
+			else DirectoryResource(child.uri),
 	];
 }

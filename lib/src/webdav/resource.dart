@@ -30,7 +30,7 @@ abstract class Resource {
 			..element("D:propstat", nest: () {
 				properties.buildXml(builder);
 				builder.element("D:status", nest: exists ? "HTTP/1.1 200 OK" : "HTTP/1.1 404 NOT FOUND");
-			})
+			},),
 		);
 	}
 }
@@ -40,5 +40,5 @@ abstract class CollectionResource extends Resource {
 	Iterable<Resource> get children;
 
 	/// Creates a [CollectionResource] representing a directory.
-	const CollectionResource(Uri uri) : super(uri);
+	const CollectionResource(super.uri);
 }

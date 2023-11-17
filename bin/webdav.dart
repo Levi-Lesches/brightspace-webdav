@@ -31,7 +31,7 @@ Future<void> logRequest(Request request) async {
 
 Future<Response> handler(Request request) async {
 	await logRequest(request);
-	final Handler methodHandler = handlers[request.method] ?? defaultHandler;
+	final methodHandler = handlers[request.method] ?? defaultHandler;
 	return await methodHandler(request);
 }
 
@@ -42,57 +42,68 @@ Response optionsHandler(Request request) =>
 
 Future<Response> propFindHandler(Request request) async {
 	// Request validation
-	final String? rawDepth = request.headers["depth"];
-	final int? depth = rawDepth == null ? null : int.tryParse(rawDepth);
+	final rawDepth = request.headers["depth"];
+	final depth = rawDepth == null ? null : int.tryParse(rawDepth);
 	if (rawDepth == null || depth == null || rawDepth.toLowerCase() == "infinity") {
 		return Response.forbidden("403.22: Infinite depth forbidden");
 	} else if (depth > 1) {
 		return Response.forbidden("Depth larger than 1 is not allowed");
 	}
 
-	final List<Resource> resources = [];
-	final List<String> path = request.url.pathSegments;
+	final resources = <Resource>[];
+	final path = request.url.pathSegments;
 
 	if (path.isEmpty) {  // the root 
 		resources.add(DummyCollectionResource(request.requestedUri));
 		if (depth == 1) {  // add all classes as well, without requesting them
-			for (final Course course in brightspace.courses.values) {
+			for (final course in brightspace.courses.values) {
 				resources.add(ModuleResource.fromCourse(course));
 			}
 		}
 	} else if (restrictedFiles.contains(path.last)) {  // Windows 
 		resources.add(DummyResource(request.requestedUri, exists: false));
 	} else {  // nested within a course
-		final ContentObject? content = await brightspace.resolveUri(request.url);
+		final content = await brightspace.resolveUri(request.url);
 		final Resource resource;
-		if (content == null) return Response.notFound(null);
-		else if (content is Topic) resource = TopicResource(content, uri: request.url);
-		else if (content is Module) resource = ModuleResource(content, uri: request.url);
-		else throw StateError("Unknown instance of ContentObject: ${content.runtimeType}");
+		if (content == null) {
+		  return Response.notFound(null);
+		} else if (content is Topic) {
+      resource = TopicResource(content, uri: request.url);
+    } else if (content is Module) {
+      resource = ModuleResource(content, uri: request.url);
+    } else {
+      throw StateError("Unknown instance of ContentObject: ${content.runtimeType}");
+    }
 
 		resources.add(resource);
 		if (depth == 1) {
-			if (content is Topic) return Response(405, body: "Cannot iterate over a non-collection resource");
-			else if (resource is ModuleResource) resources.addAll(resource.children);
+			if (content is Topic) {
+			  return Response(405, body: "Cannot iterate over a non-collection resource");
+			} else if (resource is ModuleResource) {
+        resources.addAll(resource.children);
+      }
 		}
 	}
 	return WebDavServer.propfind(resources);
 }
 
 Future<Response> headHandler(Request request) async {
-	final ContentObject? content = await brightspace.resolveUri(request.url);
+	final content = await brightspace.resolveUri(request.url);
 	return WebDavServer.head(doesExist: content != null);
 }
 
 Future<Response> getHandler(Request request) async {
 	if (restrictedFiles.contains(request.url.pathSegments.last)) return Response.notFound(null);
-	final ContentObject? content = await brightspace.resolveUri(request.url);
-	if (content == null) return Response.notFound(null);
-	else if (content is Module) return Response(405, body: "Cannot GET a collection resource");
+	final content = await brightspace.resolveUri(request.url);
+	if (content == null) {
+	  return Response.notFound(null);
+	} else if (content is Module) {
+    return Response(405, body: "Cannot GET a collection resource");
+  }
 	else if (content is Topic) {
     final data = await brightspace.getFile(content);
-    print("Got data: $data");
     return WebDavServer.get(data);
+  } else {
+    throw StateError("Unknown instance of ContentObject: ${content.runtimeType}");
   }
-	else throw StateError("Unknown instance of ContentObject: ${content.runtimeType}");
 }

@@ -10,7 +10,7 @@ class WebDavServer {
 	/// Returns a list of acceptable methods for use on this server. 
 	static Response options() => Response.ok(null, 
 		// headers: {"Allow": "OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, COPY, MOVE, MKCOL, PROPFIND, PROPPATCH, ORDERPATCH", "Dav": "1"}
-		headers: {"Allow": "OPTIONS, GET, HEAD, PROPFIND", "Dav": "1"}
+		headers: {"Allow": "OPTIONS, GET, HEAD, PROPFIND", "Dav": "1"},
 
 	);
 
@@ -18,9 +18,11 @@ class WebDavServer {
 	static Response propfind(Iterable<Resource> resources) { 
 		final builder = XmlBuilder()..processing("xml", 'version="1.0"');
 		builder.element("D:multistatus", namespaces: {"DAV:": "D"}, nest: () {
-			for (final Resource resource in resources) resource.buildXml(builder);
-		});
-		final String xml = builder.buildDocument().toXmlString();
+			for (final resource in resources) {
+			  resource.buildXml(builder);
+			}
+		},);
+		final xml = builder.buildDocument().toXmlString();
 		return Response.ok(xml);
 	}
 

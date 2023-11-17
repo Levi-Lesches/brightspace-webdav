@@ -37,7 +37,7 @@ class ModuleResource extends CollectionResource {
 	/// Creates a new [CollectionResource] representing a sub-module of [module]. 
 	ModuleResource childModule(Module obj) => ModuleResource(
 		obj, 
-		uri: Uri.http(Resource.host, "${uri.path}/${obj.title}")
+		uri: Uri.http(Resource.host, "${uri.path}/${obj.title}"),
 	);
 
 	/// Creates a new [Resource] representing a sub-topic of [module].
